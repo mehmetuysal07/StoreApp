@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import React from 'react';
+>>>>>>> 7f0f898 (İkinci commit)
 import { Grid, Container, Box, Rating, Chip } from "@mui/material";
 import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
@@ -9,6 +13,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CurrencyLiraIcon from '@mui/icons-material/CurrencyLira';
 import { useCart } from '../../context/CartContext';
+<<<<<<< HEAD
 
 // Örnek ürün verileri (gerçek uygulamada API'den gelecektir)
 const products = [
@@ -76,6 +81,23 @@ const products = [
 
 export default function ProductList() {
   const { addToCart } = useCart();
+=======
+import { useNavigate } from 'react-router-dom';
+import { products } from '../../data/products';
+
+const ProductList = () => {
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
+
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation(); // Tıklama olayının ürün detayına yönlendirmesini engelle
+    addToCart(product);
+  };
+>>>>>>> 7f0f898 (İkinci commit)
 
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -136,6 +158,11 @@ export default function ProductList() {
                 },
                 position: 'relative',
               }}
+<<<<<<< HEAD
+=======
+              onClick={() => handleProductClick(product.id)}
+              style={{ cursor: 'pointer' }}
+>>>>>>> 7f0f898 (İkinci commit)
             >
               {product.discount && (
                 <Chip
@@ -227,7 +254,11 @@ export default function ProductList() {
                 <Button 
                   variant="contained" 
                   startIcon={<ShoppingCartIcon sx={{ fontSize: 20 }} />}
+<<<<<<< HEAD
                   onClick={() => addToCart(product)}
+=======
+                  onClick={(e) => handleAddToCart(e, product)}
+>>>>>>> 7f0f898 (İkinci commit)
                   sx={{ 
                     flex: 1,
                     borderRadius: 2,
@@ -251,4 +282,10 @@ export default function ProductList() {
       </Grid>
     </Container>
   );
+<<<<<<< HEAD
 }
+=======
+};
+
+export default ProductList;
+>>>>>>> 7f0f898 (İkinci commit)

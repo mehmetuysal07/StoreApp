@@ -19,6 +19,10 @@
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+<<<<<<< HEAD
+=======
+    "react-router-dom": "^7.2.0",
+>>>>>>> 7f0f898 (İkinci commit)
     "styled-components": "^6.1.15"
   },
   "devDependencies": {
