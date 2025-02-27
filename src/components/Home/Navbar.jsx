@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -22,12 +21,25 @@ import Avatar from "@mui/material/Avatar";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useCart } from "../../context/CartContext";
 import CurrencyLiraIcon from "@mui/icons-material/CurrencyLira";
+import { useNavigate } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import PersonIcon from '@mui/icons-material/Person';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Divider } from '@mui/material';
+import { useAuth } from '../../context/AuthContext';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 
 const pages = ["Ana Sayfa", "Ürünler", "Hakkımızda", "İletişim"];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElCart, setAnchorElCart] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
+  const { cart, getCartTotal, getCartItemCount, removeFromCart } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -45,13 +57,18 @@ function Navbar() {
     setAnchorElCart(null);
   };
 
-  const { cartItems, removeFromCart } = useCart();
+  const handleCheckout = () => {
+    setAnchorElCart(null);
+    navigate('/checkout');
+  };
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = cartItems.reduce((sum, item) => {
-    const price = parseFloat(item.price);
-    return sum + price * item.quantity;
-  }, 0);
+  const handleUserClick = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleUserClose = () => {
+    setAnchorElUser(null);
+  };
 
   return (
     <AppBar
@@ -224,6 +241,108 @@ function Navbar() {
             ))}
           </Box>
 
+          <Box
+            sx={{
+              ml: 2,
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+              position: 'relative',
+              '&:hover': {
+                '& .user-icon': {
+                  transform: 'translateY(-2px)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                },
+              },
+            }}
+            onClick={handleUserClick}
+          >
+            <IconButton
+              className="user-icon"
+              sx={{
+                color: 'white',
+                transition: 'all 0.2s ease',
+                padding: '8px',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                },
+              }}
+            >
+              <PersonOutlineIcon 
+                sx={{ 
+                  fontSize: 28,
+                  transition: 'all 0.2s ease',
+                }} 
+              />
+            </IconButton>
+            {isAuthenticated && (
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  bgcolor: '#4CAF50',
+                  borderRadius: '50%',
+                  position: 'absolute',
+                  bottom: 6,
+                  right: 6,
+                  border: '2px solid #FF6600',
+                }}
+              />
+            )}
+          </Box>
+
+          <Menu
+            anchorEl={anchorElUser}
+            open={Boolean(anchorElUser)}
+            onClose={handleUserClose}
+            onClick={handleUserClose}
+            PaperProps={{
+              elevation: 0,
+              sx: {
+                overflow: 'visible',
+                filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.12))',
+                mt: 1.5,
+                minWidth: 200,
+                '& .MuiMenuItem-root': {
+                  px: 2,
+                  py: 1.5,
+                  gap: 1.5,
+                },
+              },
+            }}
+            transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          >
+            {isAuthenticated ? (
+              <>
+                <MenuItem onClick={() => navigate('/profile')}>
+                  <PersonIcon sx={{ color: '#666' }} />
+                  Profilim
+                </MenuItem>
+                <MenuItem onClick={() => navigate('/orders')}>
+                  <ShoppingCartIcon sx={{ color: '#666' }} />
+                  Siparişlerim
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={() => { logout(); handleUserClose(); }} sx={{ color: '#FF6600' }}>
+                  <LogoutIcon sx={{ color: '#FF6600' }} />
+                  Çıkış Yap
+                </MenuItem>
+              </>
+            ) : (
+              <>
+                <MenuItem onClick={() => navigate('/login')}>
+                  <LoginIcon sx={{ color: '#666' }} />
+                  Giriş Yap
+                </MenuItem>
+                <MenuItem onClick={() => navigate('/register')} sx={{ color: '#FF6600' }}>
+                  <PersonAddIcon sx={{ color: '#FF6600' }} />
+                  Kayıt Ol
+                </MenuItem>
+              </>
+            )}
+          </Menu>
+
           <IconButton
             onClick={handleCartClick}
             sx={{
@@ -236,7 +355,7 @@ function Navbar() {
               },
             }}
           >
-            <Badge badgeContent={totalItems} color="error">
+            <Badge badgeContent={getCartItemCount()} color="error">
               <ShoppingCartIcon />
             </Badge>
           </IconButton>
@@ -262,10 +381,10 @@ function Navbar() {
               },
             }}
           >
-            {cartItems.length > 0 ? (
+            {cart && cart.length > 0 ? (
               <>
                 <List sx={{ p: 0 }}>
-                  {cartItems.map((item) => (
+                  {cart.map((item) => (
                     <ListItem
                       key={item.id}
                       secondaryAction={
@@ -332,11 +451,12 @@ function Navbar() {
                     }}
                   >
                     Toplam: <CurrencyLiraIcon sx={{ fontSize: 20 }} />
-                    {totalPrice.toLocaleString("tr-TR")}
+                    {getCartTotal().toLocaleString("tr-TR")}
                   </Typography>
                   <Button
                     fullWidth
                     variant="contained"
+                    onClick={handleCheckout}
                     sx={{
                       mt: 1,
                       backgroundColor: "#FF6600",
@@ -360,188 +480,5 @@ function Navbar() {
     </AppBar>
   );
 }
-=======
-import React, { useState } from 'react';
-import { 
-  AppBar, 
-  Toolbar, 
-  Typography, 
-  Button, 
-  Container, 
-  Badge, 
-  IconButton,
-  Drawer,
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-  Stack
-} from '@mui/material';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { useCart } from '../../context/CartContext';  
-
-const Navbar = () => {
-  const { cart = [], getCartItemCount = () => 0, getCartTotal = () => 0, removeFromCart } = useCart();
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const location = useLocation();
-
-  const toggleCart = () => {
-    setIsCartOpen(!isCartOpen);
-  };
-
-  const menuItems = [
-    { text: 'Anasayfa', path: '/' },
-    { text: 'Ürünler', path: '/products' },
-    { text: 'İletişim', path: '/contact' },
-  ];
-
-  return (
-    <AppBar 
-      position="static" 
-      sx={{ 
-        backgroundColor: '#FF6600',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-      }}
-    >
-      <Container maxWidth="lg">
-        <Toolbar>
-          <Typography 
-            variant="h6" 
-            component={RouterLink} 
-            to="/"
-            sx={{ 
-              flexGrow: 1, 
-              textDecoration: 'none', 
-              color: '#fff',
-              fontWeight: 'bold',
-              fontSize: '1.5rem'
-            }}
-          >
-            AntStore
-          </Typography>
-
-          <Stack direction="row" spacing={1} sx={{ mr: 2 }}>
-            {menuItems.map((item) => (
-              <Button
-                key={item.path}
-                component={RouterLink}
-                to={item.path}
-                sx={{
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                  color: '#fff',
-                  fontWeight: location.pathname === item.path ? 'bold' : 'normal',
-                  position: 'relative',
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    bottom: 0,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: location.pathname === item.path ? '100%' : '0%',
-                    height: '3px',
-                    backgroundColor: '#fff',
-                    transition: 'width 0.3s ease-in-out'
-                  },
-                  '&:hover': {
-                    backgroundColor: 'transparent',
-                    color: '#fff'
-                  },
-                  '&:hover::after': {
-                    width: '100%'
-                  }
-                }}
-              >
-                {item.text}
-              </Button>
-            ))}
-          </Stack>
-
-          <IconButton 
-            onClick={toggleCart}
-            sx={{
-              color: '#fff',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              }
-            }}
-          >
-            <Badge 
-              badgeContent={cart ? getCartItemCount() : 0} 
-              sx={{
-                '& .MuiBadge-badge': {
-                  backgroundColor: '#fff',
-                  color: '#FF6600'
-                }
-              }}
-            >
-              <ShoppingCartIcon />
-            </Badge>
-          </IconButton>
-        </Toolbar>
-      </Container>
-
-      <Drawer
-        anchor="right"
-        open={isCartOpen}
-        onClose={toggleCart}
-      >
-        <Box sx={{ width: 350, p: 2 }}>
-          <Typography variant="h6" gutterBottom>
-            Sepetim
-          </Typography>
-          <List>
-            {cart && cart.map((item) => (
-              <React.Fragment key={item.id}>
-                <ListItem
-                  secondaryAction={
-                    <IconButton edge="end" onClick={() => removeFromCart(item.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  }
-                >
-                  <ListItemText
-                    primary={item.title}
-                    secondary={`${item.quantity} adet - ${(Number(item.price) * item.quantity).toLocaleString('tr-TR')} ₺`}
-                  />
-                </ListItem>
-                <Divider />
-              </React.Fragment>
-            ))}
-          </List>
-          
-          {cart && cart.length > 0 ? (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="h6" color="primary" gutterBottom>
-                Toplam: {getCartTotal().toLocaleString('tr-TR')} ₺
-              </Typography>
-              <Button 
-                variant="contained" 
-                fullWidth 
-                sx={{ 
-                  mt: 2,
-                  backgroundColor: '#FF6600',
-                  '&:hover': {
-                    backgroundColor: '#CC5200',
-                  }
-                }}
-              >
-                Sepeti Onayla
-              </Button>
-            </Box>
-          ) : (
-            <Typography variant="body1" sx={{ mt: 2, textAlign: 'center' }}>
-              Sepetiniz boş
-            </Typography>
-          )}
-        </Box>
-      </Drawer>
-    </AppBar>
-  );
-};
->>>>>>> 7f0f898 (İkinci commit)
 
 export default Navbar;

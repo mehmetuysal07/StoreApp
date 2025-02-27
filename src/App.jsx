@@ -1,25 +1,3 @@
-<<<<<<< HEAD
-import { CartProvider } from "./context/CartContext";
-
-import Navbar from "./components/Home/Navbar";
-import Hero from "./components/Home/Hero";
-import ProductList from "./components/Home/ProductList";
-import Footer from "./components/Home/Footer";
-
-const App = () => {
-  return (
-    <CartProvider>
-      <div>
-        <Navbar />
-        <Hero />
-        <ProductList />
-        <Footer />
-      </div>
-    </CartProvider>
-  );
-};
-
-=======
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
@@ -31,6 +9,11 @@ import Hero from './components/Home/Hero';
 import Footer from './components/Home/Footer';
 import ProductsPage from './components/Products/ProductsPage';
 import Contact from './components/Contact/Contact';
+import CheckoutPage from './components/Checkout/CheckoutPage';
+import OrderSuccess from './components/Checkout/OrderSuccess';
+import { AuthProvider } from './context/AuthContext';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
 
 const theme = createTheme({
   palette: {
@@ -54,6 +37,10 @@ const AppContent = () => {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-success" element={<OrderSuccess />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
       <Footer />
     </>
@@ -63,14 +50,15 @@ const AppContent = () => {
 function App() {
   return (
     <ThemeProvider theme={theme}>
-      <CartProvider>
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </CartProvider>
+      <AuthProvider>
+        <CartProvider>
+          <BrowserRouter>
+            <AppContent />
+          </BrowserRouter>
+        </CartProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
 
->>>>>>> 7f0f898 (İkinci commit)
 export default App;
